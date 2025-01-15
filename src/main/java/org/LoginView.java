@@ -34,7 +34,9 @@ public class LoginView {
         JButton loginButton = new JButton("Zaloguj");
         loginButton.addActionListener(e -> handleLogin());
         frame.add(loginButton);
-
+        JButton registerButton = new JButton("Zarejestruj");
+        //
+        frame.add(registerButton);
         frame.setVisible(true);
 
     }

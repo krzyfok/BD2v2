@@ -1,6 +1,7 @@
 package org;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,10 +80,35 @@ public class DatabaseConnector {
                 int id= resultSet.getInt("idsprzet");
                 String productName = resultSet.getString("nazwa");
                 double productPrice = resultSet.getDouble("cena");
-                products.add(id+" " +productName + " - " + productPrice + " PLN");  // Łączymy nazwę produktu z ceną
+                products.add(id+"  " +productName + "  " + productPrice + "  PLN");  // Łączymy nazwę produktu z ceną
             }
         }
         return products;
+    }
+
+    public List<String> getProductsStorage() throws SQLException {
+        List<String> products = new ArrayList<>();
+        String sql = "SELECT idsprzet, nazwa,  cena, stan_magazynu FROM sprzet";  // Zapytanie SQL do pobrania produktów z nazwą i ceną
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            while (resultSet.next()) {
+                int id= resultSet.getInt("idsprzet");
+                String productName = resultSet.getString("nazwa");
+                double productPrice = resultSet.getDouble("cena");
+                int stan = resultSet.getInt("stan_magazynu");
+                products.add("id: "+id+" nazwa: " +productName + " - " + productPrice + " PLN  Ilość: "+stan);  // Łączymy nazwę produktu z ceną
+            }
+        }
+        return products;
+    }
+    public boolean addProductToDatabase(String name, double price, int quantity) throws SQLException {
+        String query = "INSERT INTO sprzet (nazwa, cena, stan_magazynu) VALUES (?, ?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, name);
+            statement.setDouble(2, price);
+            statement.setInt(3, quantity);
+            return statement.executeUpdate() > 0;
+        }
     }
 
 
@@ -255,7 +281,7 @@ public class DatabaseConnector {
                 if (generatedKeys.next()) {
                     int orderId = generatedKeys.getInt(1);
                     int kwota=0;
-
+                    int counter = 0;
                     for (String product : cart) {
 
                         String[] parts = product.split(" ");
@@ -266,10 +292,18 @@ public class DatabaseConnector {
                         int productId =    Integer.parseInt(parts[0]);
                         kwota+=getCena(productId);
                         String paymentSql;
+                        //generowanie serial number??
+                        LocalDateTime now = LocalDateTime.now();
+                        String dateTimeString = now.format(DateTimeFormatter.ofPattern("MMddHHmmss"));
+                        int baseSerial = Integer.parseInt(dateTimeString);
+                        int serialNumber = baseSerial % 1_000_000_000 + productId;
+                         serialNumber +=  + counter;
+                        counter++;
 
-                                String cartSql = "INSERT INTO zakup_has_sprzet (nr_seryjny, zakup_idzakup, sprzet_idsprzet) VALUES (?, ?, ?)";
+
+                        String cartSql = "INSERT INTO zakup_has_sprzet (nr_seryjny, zakup_idzakup, sprzet_idsprzet) VALUES (?, ?, ?)";
                                 try (PreparedStatement cartStatement = connection.prepareStatement(cartSql)) {
-                                    cartStatement.setInt(1,11);
+                                    cartStatement.setInt(1,serialNumber);//jak generować? data+godzina_idproduktu?
                                     cartStatement.setInt(2, orderId);
                                     cartStatement.setInt(3, productId);
                                     cartStatement.executeUpdate();
@@ -310,6 +344,31 @@ public class DatabaseConnector {
 
 
     }
+
+
+    public void editProduct(int productId, String name, double cena) throws SQLException
+    {
+System.out.println(name);
+        String updateSql = "UPDATE sprzet SET nazwa = ?, cena = ? WHERE idsprzet = ?";
+        try (PreparedStatement updateStatement = connection.prepareStatement(updateSql)) {
+            updateStatement.setString(1, name);
+            updateStatement.setDouble(2, cena);
+            updateStatement.setInt(3, productId);
+
+             updateStatement.executeUpdate();
+
+
+
+        } catch (SQLException e) {
+            // W przypadku błędu logowanie lub inne działania
+            e.printStackTrace();
+            throw new SQLException("Błąd przy składaniu zamówienia: " + e.getMessage());
+        }
+
+
+
+    }
+
     public int getCena(int id) throws SQLException
     {
 

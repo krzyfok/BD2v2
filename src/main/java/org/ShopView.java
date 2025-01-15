@@ -161,4 +161,32 @@ public class ShopView implements ShopViewInterface {
     public void closeWindow() {
         frame.dispose();
     }
+
+    @Override
+    public void showScrollableMessage(String title, List<String> items) {
+        // Tworzenie tekstu z listy
+        String content = String.join("\n", items);
+
+        // Tworzenie JTextArea
+        JTextArea textArea = new JTextArea(content);
+        textArea.setEditable(false); // Ustawienie pola jako tylko do odczytu
+        textArea.setLineWrap(true); // Opcjonalne, jeśli chcesz zawijanie wierszy
+        textArea.setWrapStyleWord(true); // Estetyczne zawijanie słów
+
+        // Umieszczanie JTextArea w JScrollPane
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(400, 300)); // Rozmiar okna dialogowego
+
+        // Wyświetlenie w oknie dialogowym
+        JOptionPane.showMessageDialog(
+                frame,
+                scrollPane,
+                title,
+                JOptionPane.PLAIN_MESSAGE
+        );
+    }
+    public void openEditProductDialog(int productId, String name, double price)
+    {
+
+    }
 }

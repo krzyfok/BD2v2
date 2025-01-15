@@ -6,4 +6,6 @@ public interface ShopViewInterface {
     void showMessage(String message);
     void closeWindow();
     void showProductDetails(String productDetails);
+    void showScrollableMessage(String title, List<String> items);
+    public void openEditProductDialog(int productId, String name, double price);
 }

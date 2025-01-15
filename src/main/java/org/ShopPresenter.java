@@ -110,7 +110,7 @@ public class ShopPresenter {
             if (orders.isEmpty()) {
                 view.showMessage("Brak zamówień.");
             } else {
-                view.showMessage("Zamówienia:\n" + String.join("\n", orders));
+                view.showScrollableMessage("Zamówienia", orders);
             }
         } catch (SQLException e) {
             view.showMessage("Błąd podczas pobierania zamówień: " + e.getMessage());
@@ -125,12 +125,13 @@ public class ShopPresenter {
             if (requests.isEmpty()) {
                 view.showMessage("Brak zgłoszeń serwisowych.");
             } else {
-                view.showMessage("Zgłoszenia serwisowe:\n" + String.join("\n", requests));
+                view.showScrollableMessage("Zgłoszenia serwisowe", requests);
             }
         } catch (SQLException e) {
             view.showMessage("Błąd podczas pobierania zgłoszeń: " + e.getMessage());
         }
     }
+
     public void handlePayment(String paymentMethod, boolean installments) {
         this.paymentMethod = paymentMethod;
         this.installments = installments;

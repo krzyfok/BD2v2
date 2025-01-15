@@ -1,6 +1,4 @@
 package org;
-import org.DatabaseConnector;
-import org.ShopViewInterface;
 
 import javax.swing.*;
 import java.sql.SQLException;
@@ -60,22 +58,32 @@ public class EmployeePresenter {
     }
 
 
+    public void editProduct(int productId, String name, double price)
+    {
+
+            try {
+                databaseConnector.editProduct(productId, name, price);
+            }
+            catch (SQLException e) {
+                view.showMessage("Błąd podczas edycji produktów: " + e.getMessage());
+            }
+    }
 
 
-    // Tworzenie zgłoszenia serwisowego
-    public void createServiceRequest() {
+
+    public void chooseeEitedProduct() {
         try {
             int clientId = UserSession.getLoggedInUserId();
 
-            List<String> clientProducts = databaseConnector.getClientProducts(clientId);
+            List<String> clientProducts = databaseConnector.getProducts();
             if (clientProducts.isEmpty()) {
-                view.showMessage("Nie masz żadnego sprzętu zakupionego.");
+                view.showMessage("Brak produktów w magazynie.");
                 return;
             }
 
             String selectedProduct = (String) JOptionPane.showInputDialog(
                     null,
-                    "Wybierz sprzęt do zgłoszenia serwisowego:",
+                    "Wybierz sprzęt do edycji:",
                     "Wybór sprzętu",
                     JOptionPane.QUESTION_MESSAGE,
                     null,
@@ -88,34 +96,44 @@ public class EmployeePresenter {
                 return;
             }
 
-            String[] productDetails = selectedProduct.split(", ");
-            int serialNumber = Integer.parseInt(productDetails[1].split(": ")[1]);
-            int purchaseId = Integer.parseInt(productDetails[2].split(": ")[1]);
-            int equipmentId = Integer.parseInt(productDetails[3].split(": ")[1]);
-            int workerId = Integer.parseInt(productDetails[4].split(": ")[1]);
+            String[] productDetails = selectedProduct.split("  ");
+            int productId = Integer.parseInt(productDetails[0]);
+            String name = productDetails[1];
+            double price = Double.parseDouble(productDetails[2]);
 
-            // Tworzenie zgłoszenia serwisowego
-            databaseConnector.addServiceRequest(workerId, clientId, serialNumber);
-            view.showMessage("Zgłoszenie zostało utworzone.");
+            view.openEditProductDialog(productId,name,price);
+            view.showMessage("Produkt zmieniono.");
         } catch (SQLException e) {
-            view.showMessage("Błąd podczas dodawania zgłoszenia: " + e.getMessage());
+            view.showMessage("Błąd podczas edycji: " + e.getMessage());
         }
     }
 
     // Wyświetlanie zamówień klienta
-    public void viewOrders() {
+    public void viewStorage() {
         try {
-            int clientId = UserSession.getLoggedInUserId();
-            List<String> orders = databaseConnector.getClientOrders(clientId);
-            if (orders.isEmpty()) {
-                view.showMessage("Brak zamówień.");
+            List<String> products = databaseConnector.getProductsStorage();
+            if (products.isEmpty()) {
+                view.showMessage("Brak Produktów.");
             } else {
-                view.showMessage("Zamówienia:\n" + String.join("\n", orders));
+                view.showScrollableMessage("Produkty", products);
             }
         } catch (SQLException e) {
-            view.showMessage("Błąd podczas pobierania zamówień: " + e.getMessage());
+            view.showMessage("Błąd podczas pobierania produktów: " + e.getMessage());
         }
     }
+    public void addProduct(String name, double price, int quantity) {
+        try {
+            boolean success = databaseConnector.addProductToDatabase(name, price, quantity);
+            if (success) {
+                view.showMessage("Produkt został pomyślnie dodany.");
+            } else {
+                view.showMessage("Nie udało się dodać produktu. Spróbuj ponownie.");
+            }
+        } catch (SQLException e) {
+            view.showMessage("Błąd podczas dodawania produktu: " + e.getMessage());
+        }
+    }
+
 
     // Wyświetlanie zgłoszeń serwisowych klienta
     public void viewServiceRequests() {

@@ -30,7 +30,7 @@ public class LoginHandler {
                         shopView.setPresenter(shopPresenter);
                         break;
                     case "pracownik":
-                        UserSession.setLoggedInUserId(databaseConnector.getEmployeeIdByUsernameAndRole(username,password));
+                        //UserSession.setLoggedInUserId(databaseConnector.getEmployeeIdByUsernameAndRole(username,password));
                         EmployeeView employeeView = new EmployeeView();  // Poprawnie inicjalizujemy ShopView
                         EmployeePresenter employeePresenter = new EmployeePresenter(employeeView, databaseConnector);
                         employeeView.setPresenter(employeePresenter);
