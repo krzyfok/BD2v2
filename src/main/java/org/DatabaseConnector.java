@@ -216,10 +216,26 @@ public class DatabaseConnector {
                 throw new SQLException("Nie znaleziono użytkownika o podanym username.");
             }
         }
+
+
     }
+    public int getEmployeeIdByUsernameAndRole(String username, String password) throws SQLException {
+
+        String sql = "SELECT idpracownik FROM pracownik WHERE login = ? and haslo=? ";
 
 
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);  // Pierwsza kolumna zawiera ID użytkownika
+            } else {
+                throw new SQLException("Nie znaleziono użytkownika o podanym username.");
+            }
+        }
 
+    }
 
     public void placeOrder(int clientId, List<String> cart, boolean installments) throws SQLException {
         System.out.println(installments);
