@@ -6,16 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeePresenter {
-    private ShopViewInterface view;
+    private EmployeeVIewInterface view;
     private DatabaseConnector databaseConnector;
     private String paymentMethod;
     private boolean installments;
     private List<String> cart;
-    public EmployeePresenter(ShopViewInterface view, DatabaseConnector databaseConnector) {
+    public EmployeePresenter(EmployeeVIewInterface view, DatabaseConnector databaseConnector) {
         this.view = view;
         this.cart = new ArrayList<>();
         this.databaseConnector = databaseConnector;
-        loadProducts();
+
     }
 
 
@@ -41,28 +41,16 @@ public class EmployeePresenter {
         }
     }
     // Ładowanie produktów z bazy danych
-    public void loadProducts() {
-        try {
-            List<String> products = databaseConnector.getProducts();
-            view.updateProductList(products);
-        } catch (SQLException e) {
-            view.showMessage("Błąd podczas ładowania produktów: " + e.getMessage());
-        }
-    }
-
-    // Wyświetlanie szczegółów produktu
-    public void showProductDetails(String selectedProduct) {
-        if (selectedProduct != null) {
-            view.showProductDetails( selectedProduct);
-        }
-    }
 
 
-    public void editProduct(int productId, String name, double price)
+
+
+
+    public void editProduct(int productId, String name, double price, int quantity)
     {
 
             try {
-                databaseConnector.editProduct(productId, name, price);
+                databaseConnector.editProduct(productId, name, price, quantity);
             }
             catch (SQLException e) {
                 view.showMessage("Błąd podczas edycji produktów: " + e.getMessage());
@@ -75,7 +63,7 @@ public class EmployeePresenter {
         try {
             int clientId = UserSession.getLoggedInUserId();
 
-            List<String> clientProducts = databaseConnector.getProducts();
+            List<String> clientProducts = databaseConnector.getProductsAllInfo();
             if (clientProducts.isEmpty()) {
                 view.showMessage("Brak produktów w magazynie.");
                 return;
@@ -100,8 +88,9 @@ public class EmployeePresenter {
             int productId = Integer.parseInt(productDetails[0]);
             String name = productDetails[1];
             double price = Double.parseDouble(productDetails[2]);
+            int quantity = Integer.parseInt(productDetails[4]);
 
-            view.openEditProductDialog(productId,name,price);
+            view.openEditProductDialog(productId,name,price,quantity);
             view.showMessage("Produkt zmieniono.");
         } catch (SQLException e) {
             view.showMessage("Błąd podczas edycji: " + e.getMessage());

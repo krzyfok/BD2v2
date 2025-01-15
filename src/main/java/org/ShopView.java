@@ -185,8 +185,5 @@ public class ShopView implements ShopViewInterface {
                 JOptionPane.PLAIN_MESSAGE
         );
     }
-    public void openEditProductDialog(int productId, String name, double price)
-    {
 
-    }
 }

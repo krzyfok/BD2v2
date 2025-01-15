@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class EmployeeView implements ShopViewInterface {
+public class EmployeeView implements EmployeeVIewInterface{
     private JFrame frame;
 
     private JButton newProductButton;
@@ -116,7 +116,7 @@ public class EmployeeView implements ShopViewInterface {
         );
     }
 
-    public void openEditProductDialog(int productId, String name, double price) {
+    public void openEditProductDialog(int productId, String name, double price, int quantity) {
         // Tworzenie nowego okna dialogowego
         JDialog editDialog = new JDialog((Frame) null, "Edytuj produkt", true);
         editDialog.setSize(400, 300);
@@ -128,7 +128,8 @@ public class EmployeeView implements ShopViewInterface {
 
         JLabel priceLabel = new JLabel("Cena:");
         JTextField priceField = new JTextField(String.valueOf(price));
-
+        JLabel quantityLabel = new JLabel("stan:");
+        JTextField quantityField = new JTextField(String.valueOf(quantity));
         JButton saveButton = new JButton("Zapisz");
         JButton cancelButton = new JButton("Anuluj");
 
@@ -137,6 +138,8 @@ public class EmployeeView implements ShopViewInterface {
         editDialog.add(nameField);
         editDialog.add(priceLabel);
         editDialog.add(priceField);
+        editDialog.add(quantityLabel);
+        editDialog.add(quantityField);
         editDialog.add(saveButton);
         editDialog.add(cancelButton);
 
@@ -145,7 +148,8 @@ public class EmployeeView implements ShopViewInterface {
         {
             String updatedName = nameField.getText().trim();
             double updatedPrice = Double.parseDouble(priceField.getText().trim());
-            presenter.editProduct(productId, updatedName,updatedPrice);
+            int updateQuantity = Integer.parseInt(quantityField.getText().trim());
+            presenter.editProduct(productId, updatedName,updatedPrice,updateQuantity);
             editDialog.dispose();});
 
         // Obsługa przycisku Anuluj
@@ -156,13 +160,7 @@ public class EmployeeView implements ShopViewInterface {
         editDialog.setVisible(true);
     }
 
-    @Override
-    public void updateProductList(List<String> products) {
-    }
 
-    @Override
-    public void showProductDetails(String productDetails) {
-    }
 
     @Override
     public void showMessage(String message) {

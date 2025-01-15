@@ -1,11 +1,11 @@
 package org;
+
 import java.util.List;
 
-public interface ShopViewInterface {
-    void updateProductList(List<String> products);
+public interface EmployeeVIewInterface {
+
     void showMessage(String message);
     void closeWindow();
-    void showProductDetails(String productDetails);
     void showScrollableMessage(String title, List<String> items);
-
+     void openEditProductDialog(int productId, String name, double price, int quantity);
 }

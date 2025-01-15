@@ -86,6 +86,22 @@ public class DatabaseConnector {
         return products;
     }
 
+    public List<String> getProductsAllInfo() throws SQLException {
+        List<String> products = new ArrayList<>();
+        String sql = "SELECT idsprzet, nazwa, cena, stan_magazynu FROM sprzet";  // Zapytanie SQL do pobrania produktów z nazwą i ceną
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            while (resultSet.next()) {
+                int id= resultSet.getInt("idsprzet");
+                String productName = resultSet.getString("nazwa");
+                double productPrice = resultSet.getDouble("cena");
+                int quantity= resultSet.getInt("stan_magazynu");
+                products.add(id+"  " +productName + "  " + productPrice + "  PLN  "+ quantity);  // Łączymy nazwę produktu z ceną
+            }
+        }
+        return products;
+    }
+
     public List<String> getProductsStorage() throws SQLException {
         List<String> products = new ArrayList<>();
         String sql = "SELECT idsprzet, nazwa,  cena, stan_magazynu FROM sprzet";  // Zapytanie SQL do pobrania produktów z nazwą i ceną
@@ -346,14 +362,16 @@ public class DatabaseConnector {
     }
 
 
-    public void editProduct(int productId, String name, double cena) throws SQLException
+    public void editProduct(int productId, String name, double cena, int quantity) throws SQLException
     {
 System.out.println(name);
-        String updateSql = "UPDATE sprzet SET nazwa = ?, cena = ? WHERE idsprzet = ?";
+        String updateSql = "UPDATE sprzet SET nazwa = ?, cena = ?, stan_magazynu = ? WHERE idsprzet = ?";
         try (PreparedStatement updateStatement = connection.prepareStatement(updateSql)) {
             updateStatement.setString(1, name);
             updateStatement.setDouble(2, cena);
-            updateStatement.setInt(3, productId);
+            updateStatement.setInt(3,quantity);
+            updateStatement.setInt(4, productId);
+
 
              updateStatement.executeUpdate();
 
