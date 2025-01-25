@@ -406,6 +406,152 @@ System.out.println(name);
 
 
 
+    // PU12 Wyszukanie konta w bazie
+    public ResultSet findAccount(String role, String login) throws SQLException {
+        String tableName = "";
+        if ("pracownik".equals(role)) {
+            tableName = "pracownik";
+        } else if ("klient".equals(role)) {
+            tableName = "klient";
+        } else {
+            throw new IllegalArgumentException("Nieznana rola: " + role);
+        }
+        String sql = "SELECT * FROM " + tableName + " WHERE login = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, login);
+        return preparedStatement.executeQuery();
+    }
+
+    // PU10 Dodanie konta do bazy (pracownik)
+    public boolean addAccount(String role, String imie, String nazwisko, String login, String haslo, int pensja) {
+        if (!"pracownik".equals(role)) {
+            throw new IllegalArgumentException("Metoda addAccount dla pracownika wymaga roli 'pracownik'.");
+        }
+        String sql = "INSERT INTO pracownik (imie, nazwisko, pensja, login, haslo) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, imie);
+            preparedStatement.setString(2, nazwisko);
+            preparedStatement.setInt(3, pensja);
+            preparedStatement.setString(4, login);
+            preparedStatement.setString(5, haslo);
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // PU10 Dodanie konta do bazy (klient)
+    public boolean addAccount(String role, String imie, String nazwisko, String login, String haslo) {
+        if (!"klient".equals(role)) {
+            throw new IllegalArgumentException("Metoda addAccount dla klienta wymaga roli 'klient'.");
+        }
+        String sql = "INSERT INTO klient (imie, nazwisko, login, haslo) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, imie);
+            preparedStatement.setString(2, nazwisko);
+            preparedStatement.setString(3, login);
+            preparedStatement.setString(4, haslo);
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    // PU11 Usunięcie konta z bazy
+    public boolean deleteAccount(String role, String login) {
+        String tableName = "";
+        if ("pracownik".equals(role)) {
+            tableName = "pracownik";
+        } else if ("klient".equals(role)) {
+            tableName = "klient";
+        } else {
+            throw new IllegalArgumentException("Nieznana rola: " + role);
+        }
+        String sql = "DELETE FROM " + tableName + " WHERE login = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, login);
+            int affectedRows = preparedStatement.executeUpdate();
+            return affectedRows > 0; // Returns true if at least one row was deleted
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // PU13 Modyfikacja atrybutów konta w bazie (pracownik)
+    public boolean modifyAccount(String role, String login, String newImie, String newNazwisko, String newHaslo, int newPensja) {
+        if (!"pracownik".equals(role)) {
+            throw new IllegalArgumentException("Metoda modifyAccount dla pracownika wymaga roli 'pracownik'.");
+        }
+        String sql = "UPDATE pracownik SET imie = ?, nazwisko = ?, haslo = ?, pensja = ? WHERE login = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, newImie);
+            preparedStatement.setString(2, newNazwisko);
+            preparedStatement.setString(3, newHaslo);
+            preparedStatement.setInt(4, newPensja);
+            preparedStatement.setString(5, login);
+            int affectedRows = preparedStatement.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // PU13 Modyfikacja atrybutów konta w bazie (klient)
+    public boolean modifyAccount(String role, String login, String newImie, String newNazwisko, String newHaslo) {
+        if (!"klient".equals(role)) {
+            throw new IllegalArgumentException("Metoda modifyAccount dla klienta wymaga roli 'klient'.");
+        }
+        String sql = "UPDATE klient SET imie = ?, nazwisko = ?, haslo = ? WHERE login = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, newImie);
+            preparedStatement.setString(2, newNazwisko);
+            preparedStatement.setString(3, newHaslo);
+            preparedStatement.setString(4, login);
+            int affectedRows = preparedStatement.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Metoda do pobierania loginów pracowników
+    public List<String> getEmployeeLogins() throws SQLException {
+        List<String> logins = new ArrayList<>();
+        String sql = "SELECT login FROM pracownik";
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            while (resultSet.next()) {
+                logins.add(resultSet.getString("login"));
+            }
+        }
+        return logins;
+    }
+
+    // Metoda do pobierania loginów klientów
+    public List<String> getClientLogins() throws SQLException {
+        List<String> logins = new ArrayList<>();
+        String sql = "SELECT login FROM klient";
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            while (resultSet.next()) {
+                logins.add(resultSet.getString("login"));
+            }
+        }
+        return logins;
+    }
+
+
+
+
+
 }
 
 
