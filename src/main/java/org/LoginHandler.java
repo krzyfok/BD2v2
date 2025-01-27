@@ -53,4 +53,33 @@ public class LoginHandler {
             }
         }
     }
+
+    public boolean handleRegister(String Name, String Surname,String newUsername, String newPassword) {
+
+    try{
+        databaseConnector.connect("pracownik");
+
+        if(databaseConnector.userExist(newUsername))
+        {
+                loginView.showMessage("Login zajęty");
+                return false;
+        }
+        databaseConnector.registerNewUser(Name, Surname, newUsername, newPassword);
+
+
+    }
+    catch (SQLException ex) {
+        loginView.showMessage("Błąd podczas logowania: " + ex.getMessage());
+        ex.printStackTrace();
+    } finally {
+
+        loginView.clearPasswordField();
+        try {
+            databaseConnector.disconnect();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+    return true;
+    }
 }

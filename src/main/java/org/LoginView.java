@@ -35,6 +35,7 @@ public class LoginView {
         loginButton.addActionListener(e -> handleLogin());
         frame.add(loginButton);
         JButton registerButton = new JButton("Zarejestruj");
+        registerButton.addActionListener(e->openRegisterDialog());
         //
         frame.add(registerButton);
         frame.setVisible(true);
@@ -48,6 +49,47 @@ public class LoginView {
         String role = (String) roleComboBox.getSelectedItem();
 
         loginHandler.handleLogin(username, password, role);
+    }
+
+    private void openRegisterDialog() {
+        JDialog registerDialog = new JDialog(frame, "Rejestracja", true);
+        registerDialog.setSize(400, 300);
+        registerDialog.setLayout(new GridLayout(6, 2));
+
+        JTextField newNameField = new JTextField();
+        JTextField newSurnameField = new JTextField();
+        JTextField newUsernameField = new JTextField();
+        JPasswordField newPasswordField = new JPasswordField();
+
+
+        registerDialog.add(new JLabel("Imie:"));
+        registerDialog.add(newNameField);
+        registerDialog.add(new JLabel("Nazwisko:"));
+        registerDialog.add(newSurnameField);
+        registerDialog.add(new JLabel("Login:"));
+        registerDialog.add(newUsernameField);
+        registerDialog.add(new JLabel("Hasło:"));
+        registerDialog.add(newPasswordField);
+
+        JButton registerButton = new JButton("Zarejestruj");
+        registerButton.addActionListener(e -> {
+            String Name = newNameField.getText().trim();
+            String Surname = newSurnameField.getText().trim();
+            String newUsername = newUsernameField.getText().trim();
+            String newPassword = new String(newPasswordField.getPassword()).trim();
+
+
+            if (newUsername.isEmpty() || newPassword.isEmpty()) {
+                JOptionPane.showMessageDialog(registerDialog, "Wszystkie pola muszą być wypełnione!", "Błąd", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        if(loginHandler.handleRegister(Name, Surname,newUsername, newPassword))
+        {JOptionPane.showMessageDialog(registerDialog, "Rejestracja zakończona sukcesem!");
+            registerDialog.dispose();}
+        });
+
+        registerDialog.add(registerButton);
+        registerDialog.setVisible(true);
     }
 
     // Metody do manipulacji oknem

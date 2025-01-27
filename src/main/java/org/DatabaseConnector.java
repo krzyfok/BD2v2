@@ -548,6 +548,37 @@ System.out.println(name);
         return logins;
     }
 
+    void registerNewUser(String Name, String Surname,String newUsername, String newPassword) throws SQLException
+    {
+
+        String insertQuery = "INSERT INTO klient(imie, nazwisko, login, haslo) VALUES (?,?, ?, ?)";
+        try (PreparedStatement insertStatement = connection.prepareStatement(insertQuery)) {
+            insertStatement.setString(1, Name);
+            insertStatement.setString(2, Surname);
+            insertStatement.setString(3, newUsername);
+            insertStatement.setString(4, newPassword);
+            insertStatement.executeUpdate();
+        }catch (SQLException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+     boolean userExist(String login) throws  SQLException
+    {
+        String query = "SELECT COUNT(*) FROM klient WHERE login = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, login);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+
+    }
+
 
 
 
