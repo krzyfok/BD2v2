@@ -24,7 +24,7 @@ public class ShopView implements ShopViewInterface {
     private JButton confirmPaymentButton;
     public ShopView() {
         frame = new JFrame("Sklep");
-        frame.setSize(800, 600);
+        frame.setSize(800, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
@@ -73,7 +73,7 @@ public class ShopView implements ShopViewInterface {
         leftPanel.add(new JScrollPane(productList), BorderLayout.CENTER);
         leftPanel.add(addToCartButton, BorderLayout.SOUTH);
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new GridLayout(1, 6));  // Zmiana, aby dodać przycisk płatności
+        bottomPanel.setLayout(new GridLayout(3, 2));  // Zmiana, aby dodać przycisk płatności
         bottomPanel.add(createServiceRequestButton);
         bottomPanel.add(viewOrdersButton);
         bottomPanel.add(viewServiceRequestsButton);
