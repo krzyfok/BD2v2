@@ -64,71 +64,108 @@ public class ShopPresenter {
 
     // Tworzenie zgłoszenia serwisowego
     public void createServiceRequest() {
-        try {
-            int clientId = UserSession.getLoggedInUserId();
+        try {databaseConnector.connect("klient");
+            try {
+                int clientId = UserSession.getLoggedInUserId();
 
-            List<String> clientProducts = databaseConnector.getClientProducts(clientId);
-            if (clientProducts.isEmpty()) {
-                view.showMessage("Nie masz żadnego sprzętu zakupionego.");
-                return;
+                List<String> clientProducts = databaseConnector.getClientProducts(clientId);
+                if (clientProducts.isEmpty()) {
+                    view.showMessage("Nie masz żadnego sprzętu zakupionego.");
+                    return;
+                }
+
+                String selectedProduct = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Wybierz sprzęt do zgłoszenia serwisowego:",
+                        "Wybór sprzętu",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        clientProducts.toArray(),
+                        clientProducts.get(0)
+                );
+
+                if (selectedProduct == null || selectedProduct.trim().isEmpty()) {
+                    view.showMessage("Nie wybrano sprzętu.");
+                    return;
+                }
+
+                String[] productDetails = selectedProduct.split(", ");
+                int serialNumber = Integer.parseInt(productDetails[1].split(": ")[1]);
+                int purchaseId = Integer.parseInt(productDetails[2].split(": ")[1]);
+                int equipmentId = Integer.parseInt(productDetails[3].split(": ")[1]);
+                int workerId = Integer.parseInt(productDetails[4].split(": ")[1]);
+
+                // Tworzenie zgłoszenia serwisowego
+                databaseConnector.addServiceRequest(workerId, clientId, serialNumber);
+                view.showMessage("Zgłoszenie zostało utworzone.");
+            } catch (SQLException e) {
+                view.showMessage("Błąd podczas dodawania zgłoszenia: " + e.getMessage());
             }
-
-            String selectedProduct = (String) JOptionPane.showInputDialog(
-                    null,
-                    "Wybierz sprzęt do zgłoszenia serwisowego:",
-                    "Wybór sprzętu",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    clientProducts.toArray(),
-                    clientProducts.get(0)
-            );
-
-            if (selectedProduct == null || selectedProduct.trim().isEmpty()) {
-                view.showMessage("Nie wybrano sprzętu.");
-                return;
+        }
+        catch (SQLException e) {
+            view.showMessage("Błąd bazy danych: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                databaseConnector.disconnect();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
-
-            String[] productDetails = selectedProduct.split(", ");
-            int serialNumber = Integer.parseInt(productDetails[1].split(": ")[1]);
-            int purchaseId = Integer.parseInt(productDetails[2].split(": ")[1]);
-            int equipmentId = Integer.parseInt(productDetails[3].split(": ")[1]);
-            int workerId = Integer.parseInt(productDetails[4].split(": ")[1]);
-
-            // Tworzenie zgłoszenia serwisowego
-            databaseConnector.addServiceRequest(workerId, clientId, serialNumber);
-            view.showMessage("Zgłoszenie zostało utworzone.");
-        } catch (SQLException e) {
-            view.showMessage("Błąd podczas dodawania zgłoszenia: " + e.getMessage());
         }
     }
 
     // Wyświetlanie zamówień klienta
     public void viewOrders() {
         try {
-            int clientId = UserSession.getLoggedInUserId();
-            List<String> orders = databaseConnector.getClientOrders(clientId);
-            if (orders.isEmpty()) {
-                view.showMessage("Brak zamówień.");
-            } else {
-                view.showScrollableMessage("Zamówienia", orders);
+            databaseConnector.connect("klient");
+            try {
+                int clientId = UserSession.getLoggedInUserId();
+                List<String> orders = databaseConnector.getClientOrders(clientId);
+                if (orders.isEmpty()) {
+                    view.showMessage("Brak zamówień.");
+                } else {
+                    view.showScrollableMessage("Zamówienia", orders);
+                }
+            } catch (SQLException e) {
+                view.showMessage("Błąd podczas pobierania zamówień: " + e.getMessage());
             }
-        } catch (SQLException e) {
-            view.showMessage("Błąd podczas pobierania zamówień: " + e.getMessage());
+        }catch (SQLException e) {
+            view.showMessage("Błąd bazy danych: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                databaseConnector.disconnect();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
     // Wyświetlanie zgłoszeń serwisowych klienta
     public void viewServiceRequests() {
         try {
-            int clientId = UserSession.getLoggedInUserId();
-            List<String> requests = databaseConnector.getClientServiceRequests(clientId);
-            if (requests.isEmpty()) {
-                view.showMessage("Brak zgłoszeń serwisowych.");
-            } else {
-                view.showScrollableMessage("Zgłoszenia serwisowe", requests);
+            databaseConnector.connect("klient");
+            try {
+                int clientId = UserSession.getLoggedInUserId();
+                List<String> requests = databaseConnector.getClientServiceRequests(clientId);
+                if (requests.isEmpty()) {
+                    view.showMessage("Brak zgłoszeń serwisowych.");
+                } else {
+                    view.showScrollableMessage("Zgłoszenia serwisowe", requests);
+                }
+            } catch (SQLException e) {
+                view.showMessage("Błąd podczas pobierania zgłoszeń: " + e.getMessage());
             }
-        } catch (SQLException e) {
-            view.showMessage("Błąd podczas pobierania zgłoszeń: " + e.getMessage());
+        }
+        catch (SQLException e) {
+            view.showMessage("Błąd bazy danych: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                databaseConnector.disconnect();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -137,20 +174,35 @@ public class ShopPresenter {
         this.installments = installments;
     }
     public boolean orderCart() {
-        if (cart.isEmpty()) {
-            view.showMessage("Koszyk jest pusty. Nie można złożyć zamówienia.");
-            return false;
-        }
 
         try {
-            // Pobieramy ID klienta
-            int clientId = UserSession.getLoggedInUserId();  // Zakładam, że masz metodę, która zwróci ID klienta
-            // Składamy zamówienie
-            this.databaseConnector.placeOrder(clientId, cart,  installments);  // Zmienione, by przekazać metodę płatności i raty
-            cart.clear();  // Opróżniamy koszyk po złożeniu zamówienia
-            view.showMessage("Zamówienie zostało złożone pomyślnie.");
-        } catch (SQLException e) {
-            view.showMessage("Wystąpił błąd przy składaniu zamówienia: " + e.getMessage());
+            databaseConnector.connect("klient");
+            databaseConnector.connect("klient");
+            if (cart.isEmpty()) {
+                view.showMessage("Koszyk jest pusty. Nie można złożyć zamówienia.");
+                return false;
+            }
+
+            try {
+                // Pobieramy ID klienta
+                int clientId = UserSession.getLoggedInUserId();  // Zakładam, że masz metodę, która zwróci ID klienta
+                // Składamy zamówienie
+                this.databaseConnector.placeOrder(clientId, cart, installments);  // Zmienione, by przekazać metodę płatności i raty
+                cart.clear();  // Opróżniamy koszyk po złożeniu zamówienia
+                view.showMessage("Zamówienie zostało złożone pomyślnie.");
+            } catch (SQLException e) {
+                view.showMessage("Wystąpił błąd przy składaniu zamówienia: " + e.getMessage());
+            }
+        }
+        catch (SQLException e) {
+            view.showMessage("Błąd bazy danych: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                databaseConnector.disconnect();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     return true;
     }
@@ -161,16 +213,26 @@ public class ShopPresenter {
 
     public double calculateTotalPrice()  {
         double totalPrice = 0;
-        for (String item : cart) {
-            String[] parts = item.split(" "); // Dzielimy po ciągu " - "
+        try { databaseConnector.connect("klient");
+            for (String item : cart) {
+                String[] parts = item.split(" "); // Dzielimy po ciągu " - "
 
-            int productId =    Integer.parseInt(parts[0]);
-            try {
-                totalPrice += databaseConnector.getCena(productId);
+                int productId = Integer.parseInt(parts[0]);
+                try {
+                    totalPrice += databaseConnector.getCena(productId);
+                } catch (SQLException e) {
+                    System.err.println("Wystąpił błąd przy obliczaniu ceny: " + e.getMessage());
+                }
             }
-            catch (SQLException e)
-            {
-                System.err.println("Wystąpił błąd przy obliczaniu ceny: " + e.getMessage());
+        }
+        catch (SQLException e) {
+            view.showMessage("Błąd bazy danych: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                databaseConnector.disconnect();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
         }
         return totalPrice;

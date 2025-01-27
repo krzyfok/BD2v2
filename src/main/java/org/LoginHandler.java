@@ -10,13 +10,13 @@ public class LoginHandler {
         this.databaseConnector = new DatabaseConnector();
     }
 
-    // Obsługa logowania
+
     public void handleLogin(String username, String password, String role) {
         try {
-            // Połączenie z bazą danych
+
             databaseConnector.connect(role);
 
-            // Weryfikacja danych logowania
+
             if (databaseConnector.verifyCredentials(username, password, role)) {
                 loginView.showMessage("Zalogowano pomyślnie jako: " + role);
                 loginView.closeWindow(); // Zamknięcie okna logowania
@@ -30,7 +30,7 @@ public class LoginHandler {
                         shopView.setPresenter(shopPresenter);
                         break;
                     case "pracownik":
-                        //UserSession.setLoggedInUserId(databaseConnector.getEmployeeIdByUsernameAndRole(username,password));
+
                         EmployeeView employeeView = new EmployeeView();  // Poprawnie inicjalizujemy ShopView
                         EmployeePresenter employeePresenter = new EmployeePresenter(employeeView, databaseConnector);
                         employeeView.setPresenter(employeePresenter);
@@ -44,8 +44,13 @@ public class LoginHandler {
             loginView.showMessage("Błąd podczas logowania: " + ex.getMessage());
             ex.printStackTrace();
         } finally {
-            // Czyszczenie hasła z pamięci
+
             loginView.clearPasswordField();
+            try {
+                databaseConnector.disconnect();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }
