@@ -93,6 +93,63 @@ public class EmployeePresenter {
             }
         }
     }
+    public void deleteProduct() {
+        try { databaseConnector.connect("pracownik");
+            try {
+                // Pobranie listy produktów
+                List<String> clientProducts = databaseConnector.getProducts();
+                if (clientProducts.isEmpty()) {
+                    view.showMessage("Brak produktów w magazynie.");
+                    return;
+                }
+
+                // Wybór produktu do usunięcia
+                String selectedProduct = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Wybierz sprzęt do usunięcia:",
+                        "Usuń sprzęt",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        clientProducts.toArray(),
+                        clientProducts.get(0)
+                );
+
+                if (selectedProduct == null || selectedProduct.trim().isEmpty()) {
+                    view.showMessage("Nie wybrano sprzętu.");
+                    return;
+                }
+
+                // Pobranie ID produktu
+                String[] productDetails = selectedProduct.split("  ");
+                int productId = Integer.parseInt(productDetails[0]);
+
+                // Potwierdzenie usunięcia
+                int confirm = JOptionPane.showConfirmDialog(
+                        null,
+                        "Czy na pewno chcesz usunąć produkt: " + productDetails[1] + "?",
+                        "Potwierdzenie",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    databaseConnector.deleteProduct(productId);
+                    view.showMessage("Produkt został usunięty.");
+                }
+
+            } catch (SQLException e) {
+                view.showMessage("Błąd podczas usuwania: " + e.getMessage());
+            }
+        }catch (SQLException e) {
+            view.showMessage("Błąd bazy danych: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                databaseConnector.disconnect();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
 
     // Wyświetlanie zamówień klienta
     public void viewStorage() {

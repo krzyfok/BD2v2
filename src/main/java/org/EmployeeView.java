@@ -47,6 +47,7 @@ public class EmployeeView implements EmployeeVIewInterface{
         productButtonPanel.add(editProductButton);
 
         removeProductButton = new JButton("Usuń produkt");
+        removeProductButton.addActionListener(e->presenter.deleteProduct());
         productButtonPanel.add(removeProductButton);
 
         viewStorageButton = new JButton("Wyświetl stan magazynu");
@@ -444,6 +445,7 @@ public class EmployeeView implements EmployeeVIewInterface{
         editDialog.setLocationRelativeTo(null); // Wyśrodkuj
         editDialog.setVisible(true);
     }
+
 
 
     @Override

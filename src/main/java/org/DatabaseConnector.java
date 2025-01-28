@@ -360,6 +360,23 @@ public class DatabaseConnector {
 
 
     }
+    public void deleteProduct(int productId) throws SQLException {
+
+
+        String deleteSql = "DELETE FROM sprzet WHERE idsprzet = ?";
+
+        try (PreparedStatement deleteStatement = connection.prepareStatement(deleteSql)) {
+            deleteStatement.setInt(1, productId);
+            int affectedRows = deleteStatement.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Nie znaleziono produktu o podanym ID.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new SQLException("Nie można usunąc produktu ");
+        }
+    }
 
 
     public void editProduct(int productId, String name, double cena, int quantity) throws SQLException
