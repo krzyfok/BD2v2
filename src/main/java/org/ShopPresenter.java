@@ -120,16 +120,25 @@ public class ShopPresenter {
             databaseConnector.connect("klient");
             try {
                 int clientId = UserSession.getLoggedInUserId();
+
+                // Pobranie listy zamówień klienta
                 List<String> orders = databaseConnector.getClientOrders(clientId);
+
+                // Pobranie sumy wartości zamówień
+                double totalOrdersValue = databaseConnector.getTotalOrdersValue(clientId);
+
                 if (orders.isEmpty()) {
                     view.showMessage("Brak zamówień.");
                 } else {
+                    // Dodanie sumy zamówień na dole listy
+                    orders.add("\nŁączna wartość zamówień: " + String.format("%.2f PLN", totalOrdersValue));
                     view.showScrollableMessage("Zamówienia", orders);
                 }
+
             } catch (SQLException e) {
                 view.showMessage("Błąd podczas pobierania zamówień: " + e.getMessage());
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             view.showMessage("Błąd bazy danych: " + e.getMessage());
             e.printStackTrace();
         } finally {
@@ -140,6 +149,7 @@ public class ShopPresenter {
             }
         }
     }
+
 
     // Wyświetlanie zgłoszeń serwisowych klienta
     public void viewServiceRequests() {

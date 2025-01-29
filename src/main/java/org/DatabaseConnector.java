@@ -580,6 +580,21 @@ System.out.println(name);
 
         }
     }
+    public double getTotalOrdersValue(int clientId) throws SQLException {
+        double totalValue = 0.0;
+        String query = "{ ? = CALL oblicz_wartosc_zamowien(?) }"; // Wywołanie procedury SQL
+
+        try (Connection conn = getConnection();
+             CallableStatement stmt = conn.prepareCall(query)) {
+
+            stmt.registerOutParameter(1, Types.DECIMAL);
+            stmt.setInt(2, clientId);
+            stmt.execute();
+
+            totalValue = stmt.getDouble(1);
+        }
+        return totalValue;
+    }
 
      boolean userExist(String login) throws  SQLException
     {

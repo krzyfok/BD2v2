@@ -24,7 +24,7 @@ public class ShopView implements ShopViewInterface {
     private JButton confirmPaymentButton;
     public ShopView() {
         frame = new JFrame("Sklep");
-        frame.setSize(800, 300);
+        frame.setSize(700, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
