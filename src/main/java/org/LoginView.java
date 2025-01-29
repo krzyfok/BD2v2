@@ -2,7 +2,7 @@ package org;
 import javax.swing.*;
 import java.awt.*;
 
-public class LoginView {
+public class LoginView implements LoginViewInterface {
     private JFrame frame;
     private JTextField usernameField;
     private JPasswordField passwordField;

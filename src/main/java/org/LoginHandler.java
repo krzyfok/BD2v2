@@ -2,7 +2,7 @@ package org;
 import java.sql.SQLException;
 
 public class LoginHandler {
-    private LoginView loginView;
+    private LoginViewInterface loginView;
     private ShopDatabaseConnector databaseConnector;
 
     public LoginHandler() {
