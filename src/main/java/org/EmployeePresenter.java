@@ -8,11 +8,11 @@ import java.util.List;
 
 public class EmployeePresenter {
     private EmployeeVIewInterface view;
-    private DatabaseConnector databaseConnector;
+    private EmployeeDatabaseConnector databaseConnector;
     private String paymentMethod;
     private boolean installments;
     private List<String> cart;
-    public EmployeePresenter(EmployeeVIewInterface view, DatabaseConnector databaseConnector) {
+    public EmployeePresenter(EmployeeVIewInterface view, EmployeeDatabaseConnector databaseConnector) {
         this.view = view;
         this.cart = new ArrayList<>();
         this.databaseConnector = databaseConnector;
@@ -23,7 +23,7 @@ public class EmployeePresenter {
     public void editProduct(int productId, String name, double price, int quantity)
     {
 
-        try {databaseConnector.connect("pracownik");
+        try {databaseConnector.connect();
             try {
 
                 databaseConnector.editProduct(productId, name, price, quantity);
@@ -46,7 +46,7 @@ public class EmployeePresenter {
 
     public void chooseeEitedProduct() {
 
-        try {databaseConnector.connect("pracownik");
+        try {databaseConnector.connect();
             try {
                 int clientId = UserSession.getLoggedInUserId();
 
@@ -94,7 +94,7 @@ public class EmployeePresenter {
         }
     }
     public void deleteProduct() {
-        try { databaseConnector.connect("pracownik");
+        try { databaseConnector.connect();
             try {
                 // Pobranie listy produktów
                 List<String> clientProducts = databaseConnector.getProducts();
@@ -154,7 +154,7 @@ public class EmployeePresenter {
     // Wyświetlanie zamówień klienta
     public void viewStorage() {
 
-        try {databaseConnector.connect("pracownik");
+        try {databaseConnector.connect();
             try {
                 List<String> products = databaseConnector.getProductsStorage();
                 if (products.isEmpty()) {
@@ -177,7 +177,7 @@ public class EmployeePresenter {
         }
     }
     public void addProduct(String name, double price, int quantity) {
-        try {databaseConnector.connect("pracownik");
+        try {databaseConnector.connect();
             try {
                 boolean success = databaseConnector.addProductToDatabase(name, price, quantity);
                 if (success) {
@@ -206,7 +206,7 @@ public class EmployeePresenter {
     // PU10 Dodanie konta pracownika
     public void addEmployeeAccount(String imie, String nazwisko, String login, String haslo, int pensja) {
         try {
-            databaseConnector.connect("pracownik");
+            databaseConnector.connect();
             ResultSet existingAccount = databaseConnector.findAccount("pracownik", login);
             if (existingAccount.next()) {
                 view.showMessage("Pracownik z loginem '" + login + "' już istnieje.");
@@ -233,7 +233,7 @@ public class EmployeePresenter {
     // PU12 & Preparation for PU13 - Pobranie danych pracownika do edycji
     public void prepareEmployeeForEdit(String loginToModify) {
         try {
-            databaseConnector.connect("pracownik");
+            databaseConnector.connect();
             ResultSet employeeData = databaseConnector.findAccount("pracownik", loginToModify);
             if (employeeData.next()) {
                 String imie = employeeData.getString("imie");
@@ -259,7 +259,7 @@ public class EmployeePresenter {
     // Preparation for PU13 - Populate logins for modify employee dialog
     public void prepareEmployeeLoginsForModify() {
         try {
-            databaseConnector.connect("pracownik");
+            databaseConnector.connect();
             List<String> employeeLogins = databaseConnector.getEmployeeLogins();
             view.showModifyEmployeeDialog(employeeLogins);
         } catch (SQLException e) {
@@ -277,7 +277,7 @@ public class EmployeePresenter {
     // Preparation for PU11 - Populate logins for delete employee dialog
     public void prepareEmployeeLoginsForDelete() {
         try {
-            databaseConnector.connect("pracownik");
+            databaseConnector.connect();
             List<String> employeeLogins = databaseConnector.getEmployeeLogins();
             view.showDeleteEmployeeDialog(employeeLogins);
         } catch (SQLException e) {
@@ -296,7 +296,7 @@ public class EmployeePresenter {
     // PU13 Modyfikacja konta pracownika
     public void modifyEmployeeAccount(String login, String newImie, String newNazwisko, String newHaslo, int newPensja) {
         try {
-            databaseConnector.connect("pracownik");
+            databaseConnector.connect();
             boolean modified = databaseConnector.modifyAccount("pracownik", login, newImie, newNazwisko, newHaslo, newPensja);
             if (modified) {
                 view.showMessage("Dane pracownika '" + login + "' zostały zaktualizowane.");
@@ -318,7 +318,7 @@ public class EmployeePresenter {
     // PU11 Usunięcie konta pracownika
     public void deleteEmployeeAccount(String loginToDelete) {
         try {
-            databaseConnector.connect("pracownik");
+            databaseConnector.connect();
             ResultSet existingAccount = databaseConnector.findAccount("pracownik", loginToDelete);
             if (!existingAccount.next()) {
                 view.showMessage("Pracownik z loginem '" + loginToDelete + "' nie istnieje.");
@@ -348,7 +348,7 @@ public class EmployeePresenter {
     // PU10 Dodanie konta klienta
     public void addClientAccount(String imie, String nazwisko, String login, String haslo) {
         try {
-            databaseConnector.connect("pracownik"); // Or maybe a separate "admin" role if needed, for now employee can manage clients
+            databaseConnector.connect(); // Or maybe a separate "admin" role if needed, for now employee can manage clients
             ResultSet existingAccount = databaseConnector.findAccount("klient", login);
             if (existingAccount.next()) {
                 view.showMessage("Klient z loginem '" + login + "' już istnieje.");
@@ -375,7 +375,7 @@ public class EmployeePresenter {
     // PU12 & Preparation for PU13 - Pobranie danych klienta do edycji
     public void prepareClientForEdit(String loginToModify) {
         try {
-            databaseConnector.connect("pracownik"); // Or "admin" role
+            databaseConnector.connect(); // Or "admin" role
             ResultSet clientData = databaseConnector.findAccount("klient", loginToModify);
             if (clientData.next()) {
                 String imie = clientData.getString("imie");
@@ -400,7 +400,7 @@ public class EmployeePresenter {
     // Preparation for PU13 - Populate logins for modify client dialog
     public void prepareClientLoginsForModify() {
         try {
-            databaseConnector.connect("pracownik");
+            databaseConnector.connect();
             List<String> clientLogins = databaseConnector.getClientLogins();
             view.showModifyClientDialog(clientLogins);
         } catch (SQLException e) {
@@ -418,7 +418,7 @@ public class EmployeePresenter {
     // Preparation for PU11 - Populate logins for delete client dialog
     public void prepareClientLoginsForDelete() {
         try {
-            databaseConnector.connect("pracownik");
+            databaseConnector.connect();
             List<String> clientLogins = databaseConnector.getClientLogins();
             view.showDeleteClientDialog(clientLogins);
         } catch (SQLException e) {
@@ -437,7 +437,7 @@ public class EmployeePresenter {
     // PU13 Modyfikacja konta klienta
     public void modifyClientAccount(String login, String newImie, String newNazwisko, String newHaslo) {
         try {
-            databaseConnector.connect("pracownik"); // Or "admin" role
+            databaseConnector.connect(); // Or "admin" role
             boolean modified = databaseConnector.modifyAccount("klient", login, newImie, newNazwisko, newHaslo);
             if (modified) {
                 view.showMessage("Dane klienta '" + login + "' zostały zaktualizowane.");
@@ -459,7 +459,7 @@ public class EmployeePresenter {
     // PU11 Usunięcie konta klienta
     public void deleteClientAccount(String loginToDelete) {
         try {
-            databaseConnector.connect("pracownik"); // Or "admin" role
+            databaseConnector.connect(); // Or "admin" role
             ResultSet existingAccount = databaseConnector.findAccount("klient", loginToDelete);
             if (!existingAccount.next()) {
                 view.showMessage("Klient z loginem '" + loginToDelete + "' nie istnieje.");

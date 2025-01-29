@@ -1,6 +1,4 @@
 package org;
-import org.DatabaseConnector;
-import org.ShopViewInterface;
 
 import javax.swing.*;
 import java.sql.SQLException;
@@ -9,11 +7,11 @@ import java.util.List;
 
 public class ShopPresenter {
     private ShopViewInterface view;
-    private DatabaseConnector databaseConnector;
+    private ShopDatabaseConnector databaseConnector;
     private String paymentMethod;
     private boolean installments;
     private List<String> cart;
-    public ShopPresenter(ShopViewInterface view, DatabaseConnector databaseConnector) {
+    public ShopPresenter(ShopViewInterface view, ShopDatabaseConnector databaseConnector) {
         this.view = view;
         this.cart = new ArrayList<>();
         this.databaseConnector = databaseConnector;
@@ -44,11 +42,23 @@ public class ShopPresenter {
     }
     // Ładowanie produktów z bazy danych
     public void loadProducts() {
-        try {
-            List<String> products = databaseConnector.getProducts();
-            view.updateProductList(products);
+
+        try {databaseConnector.connect();
+            try {
+                List<String> products = databaseConnector.getProducts();
+                view.updateProductList(products);
+            } catch (SQLException e) {
+                view.showMessage("Błąd podczas ładowania produktów: " + e.getMessage());
+            }
         } catch (SQLException e) {
-            view.showMessage("Błąd podczas ładowania produktów: " + e.getMessage());
+            view.showMessage("Błąd bazy danych: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                databaseConnector.disconnect();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -64,7 +74,7 @@ public class ShopPresenter {
 
     // Tworzenie zgłoszenia serwisowego
     public void createServiceRequest() {
-        try {databaseConnector.connect("klient");
+        try {databaseConnector.connect();
             try {
                 int clientId = UserSession.getLoggedInUserId();
 
@@ -117,7 +127,7 @@ public class ShopPresenter {
     // Wyświetlanie zamówień klienta
     public void viewOrders() {
         try {
-            databaseConnector.connect("klient");
+            databaseConnector.connect();
             try {
                 int clientId = UserSession.getLoggedInUserId();
 
@@ -154,7 +164,7 @@ public class ShopPresenter {
     // Wyświetlanie zgłoszeń serwisowych klienta
     public void viewServiceRequests() {
         try {
-            databaseConnector.connect("klient");
+            databaseConnector.connect();
             try {
                 int clientId = UserSession.getLoggedInUserId();
                 List<String> requests = databaseConnector.getClientServiceRequests(clientId);
@@ -186,8 +196,8 @@ public class ShopPresenter {
     public boolean orderCart() {
 
         try {
-            databaseConnector.connect("klient");
-            databaseConnector.connect("klient");
+
+            databaseConnector.connect();
             if (cart.isEmpty()) {
                 view.showMessage("Koszyk jest pusty. Nie można złożyć zamówienia.");
                 return false;
@@ -223,7 +233,7 @@ public class ShopPresenter {
 
     public double calculateTotalPrice()  {
         double totalPrice = 0;
-        try { databaseConnector.connect("klient");
+        try { databaseConnector.connect();
             for (String item : cart) {
                 String[] parts = item.split(" "); // Dzielimy po ciągu " - "
 

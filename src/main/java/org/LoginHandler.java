@@ -3,18 +3,18 @@ import java.sql.SQLException;
 
 public class LoginHandler {
     private LoginView loginView;
-    private DatabaseConnector databaseConnector;
+    private ShopDatabaseConnector databaseConnector;
 
     public LoginHandler() {
         this.loginView = new LoginView(this);
-        this.databaseConnector = new DatabaseConnector();
+        this.databaseConnector = new ShopDatabaseConnector();
     }
 
 
     public void handleLogin(String username, String password, String role) {
         try {
 
-            databaseConnector.connect(role);
+            databaseConnector.connect();
 
 
             if (databaseConnector.verifyCredentials(username, password, role)) {
@@ -26,13 +26,13 @@ public class LoginHandler {
                     case "klient":
                         UserSession.setLoggedInUserId(databaseConnector.getUserIdByUsernameAndRole(username,password));
                         ShopView shopView = new ShopView();  // Poprawnie inicjalizujemy ShopView
-                        ShopPresenter shopPresenter = new ShopPresenter(shopView, databaseConnector);
+                        ShopPresenter shopPresenter = new ShopPresenter(shopView, new ShopDatabaseConnector());
                         shopView.setPresenter(shopPresenter);
                         break;
                     case "pracownik":
 
                         EmployeeView employeeView = new EmployeeView();  // Poprawnie inicjalizujemy ShopView
-                        EmployeePresenter employeePresenter = new EmployeePresenter(employeeView, databaseConnector);
+                        EmployeePresenter employeePresenter = new EmployeePresenter(employeeView, new EmployeeDatabaseConnector());
                         employeeView.setPresenter(employeePresenter);
                         break;
 
@@ -57,7 +57,7 @@ public class LoginHandler {
     public boolean handleRegister(String Name, String Surname,String newUsername, String newPassword) {
 
     try{
-        databaseConnector.connect("pracownik");
+        databaseConnector.connect();
 
         if(databaseConnector.userExist(newUsername))
         {
